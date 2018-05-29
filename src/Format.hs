@@ -28,7 +28,7 @@ targetRow t
     , Just _ <- targetPackage t = compRow Module (formatComp $ targetItem t)
     | Just (pkg, _) <- targetPackage t
     , Just (mdl, _) <- targetModule t =
-        functionRow (formatType True . targetItem $ t) (pack pkg) (pack mdl)
+        functionRow (formatItem True . targetItem $ t) (pack pkg) (pack mdl)
 
 data DisplayTarget = DisplayTarget
     { dtargetType :: Text
@@ -41,7 +41,7 @@ displayTarget :: Maybe Target -> DisplayTarget
 displayTarget Nothing = DisplayTarget "" "" "" ""
 displayTarget (Just t) =
     DisplayTarget
-    { dtargetType = formatType False $ targetItem t
+    { dtargetType = formatItem False $ targetItem t
     , dtargetModule = formatLink $ targetModule t
     , dtargetPackage = formatLink $ targetPackage t
     , dtargetDocs = formatDocs $ targetDocs t
@@ -62,8 +62,8 @@ formatComp x =
         ["package", " ", name] -> T.drop 3 name
         _ -> pack x
 
-formatType :: Bool -> String -> Text
-formatType pretty x =
+formatItem :: Bool -> String -> Text
+formatItem pretty x =
     case tagged x of
         [name, sig] ->
             T.drop 3 name <>
@@ -96,7 +96,7 @@ formatType pretty x =
                 mconcat clRest
             | otherwise ->
                 "class" <> context <> T.drop 3 clName <> mconcat clRest
-        _ -> pack x
+        _ -> ""
 
 prettySig :: Text -> Text
 prettySig = T.replace "=>" "⇒" . T.replace "->" "→" . T.replace "<->" "↔"
