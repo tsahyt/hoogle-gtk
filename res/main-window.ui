@@ -230,11 +230,7 @@
                         <property name="valign">start</property>
                         <property name="margin_left">8</property>
                         <property name="margin_right">8</property>
-                        <property name="label" translatable="yes">Sequentially compose two actions, passing any value produced by the first as an argument to the second.
-
-&lt;i&gt;this is italic&lt;/i&gt;
-
-&lt;span face="monospace"&gt;k &gt;&gt;= \i -&gt; f&lt;/span&gt;</property>
+                        <property name="label" translatable="yes">label</property>
                         <property name="use_markup">True</property>
                         <property name="wrap">True</property>
                         <property name="selectable">True</property>

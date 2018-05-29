@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE PatternGuards #-}
+
 module Network (
     bootstrap,
     network
@@ -16,7 +16,9 @@ import Reactive.Banana
 import Reactive.Banana.Frameworks
 import Reactive.Banana.GI.Gtk
 import GI.Gtk
+
 import UI
+import Format
 import Hoogle
 
 -- | Flipped '<$>'
@@ -46,36 +48,11 @@ searchText :: SearchEntry -> MomentIO (Event Text)
 searchText entry =
     mapEventIO (\_ -> get entry #text) =<< signalE0 entry #searchChanged
 
-targetRow :: MonadIO m => Target -> m ListBoxRow
-targetRow t
-    | Nothing <- targetPackage t
-    , Nothing <- targetModule t = compRow Package (targetItem t)
-    | Nothing <- targetModule t
-    , Just _ <- targetPackage t = compRow Module (targetItem t)
-    | Just (pkg, _) <- targetPackage t
-    , Just (mdl, _) <- targetModule t = functionRow (targetItem t) pkg mdl
-
 selectedRow :: ListBox -> MomentIO (Behavior (Maybe Int))
 selectedRow listBox = do
     selected <- signalE1 listBox #rowSelected
     indexE <- mapEventIO (flip for listBoxRowGetIndex) selected
     stepper Nothing $ fromIntegral <$$> indexE
-
-data DisplayTarget = DisplayTarget
-    { dtargetType :: Text
-    , dtargetModule :: Text
-    , dtargetPackage :: Text
-    , dtargetDocs :: Text
-    }
-
-displayTarget :: Maybe Target -> DisplayTarget
-displayTarget Nothing = DisplayTarget "" "" "" ""
-displayTarget (Just t) = DisplayTarget
-    { dtargetType = pack $ targetItem t
-    , dtargetModule = maybe "" (pack . fst) $ targetModule t
-    , dtargetPackage = maybe "" (pack . fst) $ targetPackage t
-    , dtargetDocs = pack $ targetDocs t
-    }
 
 network :: HoogleGTK -> MomentIO ()
 network gui

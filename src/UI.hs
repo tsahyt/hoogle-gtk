@@ -23,23 +23,23 @@ data HoogleGTK = HoogleGTK
     }
 
 functionRow :: MonadIO m 
-    => String   -- ^ Type
-    -> String   -- ^ Package
-    -> String   -- ^ Module
+    => Text   -- ^ Type
+    -> Text   -- ^ Package
+    -> Text   -- ^ Module
     -> m ListBoxRow
 functionRow ty pkg mod = do
     b <- builderNewFromString $(embedStringFile "res/function-row.ui") (-1)
     typeLabel <- castB b "typeLabel" Label
     locationLabel <- castB b "locationLabel" Label
-    set typeLabel [#label := pack ty]
-    set locationLabel [#label := (pack pkg <> " – " <> pack mod)]
+    set typeLabel [#label := ty]
+    set locationLabel [#label := (pkg <> " – " <> mod)]
     castB b "hoogleRow" ListBoxRow
 
 data Composite
     = Module
     | Package
 
-compRow :: MonadIO m => Composite -> String -> m ListBoxRow
+compRow :: MonadIO m => Composite -> Text -> m ListBoxRow
 compRow comp name = do
     b <- builderNewFromString $(embedStringFile "res/comp-row.ui") (-1)
     compLabel <- castB b "compLabel" Label
@@ -51,7 +51,7 @@ compRow comp name = do
               Module -> "module"
               Package -> "package"
         ]
-    set nameLabel [#label := pack name]
+    set nameLabel [#label := name]
     castB b "hoogleRow" ListBoxRow
 
 hoogleGTK :: MonadIO m => m HoogleGTK
