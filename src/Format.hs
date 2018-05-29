@@ -4,14 +4,14 @@
 module Format
     ( targetRow
     , DisplayTarget(..)
+    , emptyDisplayTarget
     , displayTarget
     , tagged
     ) where
 
 import Control.Monad.IO.Class
-import Data.Bifunctor
 import Data.Maybe
-import Data.Text (Text, pack, unpack)
+import Data.Text (Text, pack)
 import qualified Data.Text as T
 import Text.HTML.TagSoup
 
@@ -20,6 +20,7 @@ import GI.Gtk (ListBoxRow)
 import Hoogle
 import UI
 
+-- | Build a suitable row from a Hoogle 'Target'
 targetRow :: MonadIO m => Target -> m ListBoxRow
 targetRow t
     | Nothing <- targetPackage t
@@ -29,7 +30,9 @@ targetRow t
     | Just (pkg, _) <- targetPackage t
     , Just (mdl, _) <- targetModule t =
         functionRow (formatItem True . targetItem $ t) (pack pkg) (pack mdl)
+    | otherwise = functionRow "Invalid Hoogle Result!" "" ""
 
+-- | Formatted 'Target'
 data DisplayTarget = DisplayTarget
     { dtargetType :: Text
     , dtargetModule :: Text
@@ -37,9 +40,12 @@ data DisplayTarget = DisplayTarget
     , dtargetDocs :: Text
     }
 
-displayTarget :: Maybe Target -> DisplayTarget
-displayTarget Nothing = DisplayTarget "" "" "" ""
-displayTarget (Just t) =
+emptyDisplayTarget :: DisplayTarget
+emptyDisplayTarget = DisplayTarget "" "" "" ""
+
+-- | Format a 'Target'
+displayTarget :: Target -> DisplayTarget
+displayTarget t =
     DisplayTarget
     { dtargetType = formatItem False $ targetItem t
     , dtargetModule = formatLink $ targetModule t
@@ -123,4 +129,4 @@ formatDocs = renderTags . mapMaybe go . parseTags . pack
             "a" -> Just $ TagClose "i"
             _ -> Nothing
     go (TagText t) = Just $ TagText t
-    go x = Nothing
+    go _ = Nothing

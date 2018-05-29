@@ -7,7 +7,7 @@ module UI where
 import Control.Monad.IO.Class
 import Data.Foldable
 import Data.FileEmbed
-import Data.Text (Text, pack)
+import Data.Text (Text)
 import GI.Gtk
 import Reactive.Banana.GI.Gtk
 
@@ -28,23 +28,26 @@ data HoogleGTK = HoogleGTK
     , retryDbButton :: !Button
     }
 
+-- | Create a new Function Row given a type, a package, and a module
 functionRow :: MonadIO m 
     => Text   -- ^ Type
     -> Text   -- ^ Package
     -> Text   -- ^ Module
     -> m ListBoxRow
-functionRow ty pkg mod = do
+functionRow ty pkg mdl = do
     b <- builderNewFromString $(embedStringFile "res/function-row.ui") (-1)
-    typeLabel <- castB b "typeLabel" Label
-    locationLabel <- castB b "locationLabel" Label
-    set typeLabel [#label := ty]
-    set locationLabel [#label := (pkg <> " – " <> mod)]
+    tLabel <- castB b "typeLabel" Label
+    locLabel <- castB b "locationLabel" Label
+    set tLabel [#label := ty]
+    set locLabel [#label := (pkg <> " – " <> mdl)]
     castB b "hoogleRow" ListBoxRow
 
+-- | Describes composite rows (modules or packages)
 data Composite
     = Module
     | Package
 
+-- | Create a new composite row
 compRow :: MonadIO m => Composite -> Text -> m ListBoxRow
 compRow comp name = do
     b <- builderNewFromString $(embedStringFile "res/comp-row.ui") (-1)
@@ -60,6 +63,7 @@ compRow comp name = do
     set nameLabel [#label := name]
     castB b "hoogleRow" ListBoxRow
 
+-- | Load GUI
 hoogleGTK :: MonadIO m => m HoogleGTK
 hoogleGTK = do
     b <- builderNewFromString $(embedStringFile "res/main-window.ui") (-1)
@@ -79,6 +83,7 @@ hoogleGTK = do
         <*> castB b "stack" Stack
         <*> castB b "retryDbButton" Button
 
+-- | (Re)load a 'ListBox' with some traversable of row building actions
 loadListBox :: (Traversable t, MonadIO m) => ListBox -> t (m ListBoxRow) -> m ()
 loadListBox list rowActions = do
     containerGetChildren list >>= mapM_ (containerRemove list)

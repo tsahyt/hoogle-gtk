@@ -15,6 +15,7 @@ extra-source-files:  README.md
 executable hoogle-gtk
   hs-source-dirs:      src
   main-is:             Main.hs
+  ghc-options:         -threaded -Wall
   other-modules:       UI
                        Network
                        Format
