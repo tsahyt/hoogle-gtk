@@ -1,0 +1,9 @@
+resolver: nightly-2018-04-21
+packages:
+- .
+extra-deps:
+- reactive-banana-1.2.0.0
+- git: https://github.com/mr/reactive-banana-gi-gtk
+  commit: master
+  subdirs:
+      - reactive-banana-gi-gtk
