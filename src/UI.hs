@@ -13,13 +13,14 @@ import Reactive.Banana.GI.Gtk
 
 data HoogleGTK = HoogleGTK
     { typeSearch :: !SearchEntry
-    , browserButton :: !Button
+    , browserButton :: !LinkButton
     , typeLabel :: !Label
     , packageLabel :: !Label
     , moduleLabel :: !Label
     , docsLabel :: !Label
     , resultsList :: !ListBox
     , window :: !ApplicationWindow
+    , paned :: !Paned
     }
 
 functionRow :: MonadIO m 
@@ -59,13 +60,14 @@ hoogleGTK = do
     b <- builderNewFromString $(embedStringFile "res/main-window.ui") (-1)
     HoogleGTK 
         <$> castB b "typeSearch" SearchEntry
-        <*> castB b "browserButton" Button
+        <*> castB b "browserButton" LinkButton
         <*> castB b "typeLabel" Label
         <*> castB b "packageLabel" Label
         <*> castB b "moduleLabel" Label
         <*> castB b "docsLabel" Label
         <*> castB b "resultsList" ListBox
         <*> castB b "hoogle-gtk" ApplicationWindow
+        <*> castB b "paned" Paned
 
 loadListBox :: (Traversable t, MonadIO m) => ListBox -> t (m ListBoxRow) -> m ()
 loadListBox list rowActions = do

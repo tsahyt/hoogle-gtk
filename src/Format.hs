@@ -41,10 +41,15 @@ displayTarget :: Maybe Target -> DisplayTarget
 displayTarget Nothing = DisplayTarget "" "" "" ""
 displayTarget (Just t) = DisplayTarget
     { dtargetType = formatType False $ targetItem t
-    , dtargetModule = maybe "" (pack . fst) $ targetModule t
-    , dtargetPackage = maybe "" (pack . fst) $ targetPackage t
+    , dtargetModule = formatLink $ targetModule t
+    , dtargetPackage = formatLink $ targetPackage t
     , dtargetDocs = formatDocs $ targetDocs t
     }
+
+formatLink :: Maybe (String, URL) -> Text
+formatLink Nothing = ""
+formatLink (Just (name, url)) =
+    "<a href='" <> pack url <> "'>" <> pack name <> "</a>"
 
 tagged :: String -> [Text]
 tagged = map pack . mapMaybe (maybeTagText) . parseTags
@@ -92,7 +97,7 @@ formatType pretty x =
         _ -> pack x
 
 prettySig :: Text -> Text
-prettySig = T.replace "=>" "⇒" . T.replace "->" "→"
+prettySig = T.replace "=>" "⇒" . T.replace "->" "→" . T.replace "<->" "↔"
 
 formatDocs :: String -> Text
 formatDocs = renderTags . mapMaybe go . parseTags . pack

@@ -7,6 +7,7 @@ module Network (
 ) where
 
 import Control.Monad
+import Data.Maybe
 import Data.Text (Text, pack, unpack)
 import Data.Traversable
 import Data.Functor.Syntax
@@ -80,3 +81,4 @@ network gui
     sink (moduleLabel gui) [ #label :== dtargetModule <$> selectedDisplay ]
     sink (packageLabel gui) [ #label :== dtargetPackage <$> selectedDisplay ]
     sink (docsLabel gui) [ #label :== dtargetDocs <$> selectedDisplay ]
+    sink (browserButton gui) [ #uri :== pack . fromMaybe "https://hackage.haskell.org" . fmap targetURL <$> selectedTarget ]
