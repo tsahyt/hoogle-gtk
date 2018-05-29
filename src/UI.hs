@@ -15,6 +15,7 @@ data HoogleGTK = HoogleGTK
     { typeSearch :: !SearchEntry
     , browserButton :: !LinkButton
     , rotateButton :: !Button
+    , rotateImage :: !Image
     , typeLabel :: !Label
     , packageLabel :: !Label
     , moduleLabel :: !Label
@@ -66,6 +67,7 @@ hoogleGTK = do
         <$> castB b "typeSearch" SearchEntry
         <*> castB b "browserButton" LinkButton
         <*> castB b "rotateButton" Button
+        <*> castB b "rotateImage" Image
         <*> castB b "typeLabel" Label
         <*> castB b "packageLabel" Label
         <*> castB b "moduleLabel" Label

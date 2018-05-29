@@ -104,10 +104,16 @@ network gui
     rotate <- signalE0 (rotateButton gui) #clicked
     orientation <- accumB OrientationVertical (reorient <$ rotate)
     sink (paned gui) [#orientation :== orientation]
+    sink (rotateImage gui) [ #iconName :== reorientIcon <$> orientation ]
 
     -- retry for database
     retry <- signalE0 (retryDbButton gui) #clicked
     reactimate $ retry $> checkDB gui
 
+reorient :: Orientation -> Orientation
 reorient OrientationVertical = OrientationHorizontal
 reorient OrientationHorizontal = OrientationVertical
+
+reorientIcon :: Orientation -> Text
+reorientIcon OrientationVertical = "orientation-landscape-symbolic"
+reorientIcon OrientationHorizontal = "orientation-portrait-symbolic"
