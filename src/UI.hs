@@ -22,6 +22,9 @@ data HoogleGTK = HoogleGTK
     , resultsList :: !ListBox
     , window :: !ApplicationWindow
     , paned :: !Paned
+    , noDatabase :: !Box
+    , stack :: !Stack
+    , retryDbButton :: !Button
     }
 
 functionRow :: MonadIO m 
@@ -70,6 +73,9 @@ hoogleGTK = do
         <*> castB b "resultsList" ListBox
         <*> castB b "hoogle-gtk" ApplicationWindow
         <*> castB b "paned" Paned
+        <*> castB b "noDatabase" Box
+        <*> castB b "stack" Stack
+        <*> castB b "retryDbButton" Button
 
 loadListBox :: (Traversable t, MonadIO m) => ListBox -> t (m ListBoxRow) -> m ()
 loadListBox list rowActions = do

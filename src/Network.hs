@@ -17,6 +17,7 @@ import GI.Gtk
 import Reactive.Banana
 import Reactive.Banana.Frameworks
 import Reactive.Banana.GI.Gtk
+import System.Directory
 
 import Format
 import Hoogle
@@ -37,7 +38,17 @@ bootstrap app = do
     reactimate $ activate $> do
         set (window gui) [#application := app]
         widgetShowAll (window gui)
+        checkDB gui
     pure gui
+
+checkDB :: MonadIO m => HoogleGTK -> m ()
+checkDB gui = do
+    hasDB <- liftIO $ do
+        loc <- defaultDatabaseLocation
+        doesFileExist loc
+    if hasDB 
+        then set (stack gui) [ #visibleChild := paned gui ]
+        else set (stack gui) [ #visibleChild := noDatabase gui ]
 
 -- | Debugging function to print behaviours
 printB :: Show a => Behavior a -> MomentIO ()
@@ -57,8 +68,8 @@ selectedRow listBox = do
 
 network :: HoogleGTK -> MomentIO ()
 network gui
-    -- search targets
  = do
+    -- search targets
     targets <-
         do search <- searchText (typeSearch gui)
            targetE <-
@@ -67,9 +78,11 @@ network gui
                    withDatabase loc $ \db ->
                        pure (take 50 $ searchDatabase db (unpack s))
            stepper [] targetE
+
     -- result list
     rowsChangeE <- changes $ map targetRow <$> targets
     reactimate' $ loadListBox (resultsList gui) <$$> rowsChangeE
+
     -- selection
     selection <- selectedRow (resultsList gui)
     let selectedTarget =
@@ -86,10 +99,15 @@ network gui
           fmap targetURL <$>
           selectedTarget
         ]
+
     -- orientation
     rotate <- signalE0 (rotateButton gui) #clicked
     orientation <- accumB OrientationVertical (reorient <$ rotate)
     sink (paned gui) [#orientation :== orientation]
+
+    -- retry for database
+    retry <- signalE0 (retryDbButton gui) #clicked
+    reactimate $ retry $> checkDB gui
 
 reorient OrientationVertical = OrientationHorizontal
 reorient OrientationHorizontal = OrientationVertical

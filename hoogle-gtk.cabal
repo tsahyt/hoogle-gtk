@@ -29,4 +29,5 @@ executable hoogle-gtk
                        file-embed,
                        composition-extra,
                        hoogle,
-                       tagsoup >= 0.14 && < 0.15
+                       tagsoup >= 0.14 && < 0.15,
+                       directory >= 1.3
