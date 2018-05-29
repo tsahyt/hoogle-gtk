@@ -14,6 +14,7 @@ import Reactive.Banana.GI.Gtk
 data HoogleGTK = HoogleGTK
     { typeSearch :: !SearchEntry
     , browserButton :: !LinkButton
+    , rotateButton :: !Button
     , typeLabel :: !Label
     , packageLabel :: !Label
     , moduleLabel :: !Label
@@ -61,6 +62,7 @@ hoogleGTK = do
     HoogleGTK 
         <$> castB b "typeSearch" SearchEntry
         <*> castB b "browserButton" LinkButton
+        <*> castB b "rotateButton" Button
         <*> castB b "typeLabel" Label
         <*> castB b "packageLabel" Label
         <*> castB b "moduleLabel" Label

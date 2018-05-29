@@ -1,26 +1,26 @@
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Network (
-    bootstrap,
-    network
-) where
+module Network
+    ( bootstrap
+    , network
+    ) where
 
 import Control.Monad
+import Control.Monad.IO.Class
+import Data.Functor.Compose
+import Data.Functor.Syntax
 import Data.Maybe
 import Data.Text (Text, pack, unpack)
 import Data.Traversable
-import Data.Functor.Syntax
-import Data.Functor.Compose
-import Control.Monad.IO.Class
+import GI.Gtk
 import Reactive.Banana
 import Reactive.Banana.Frameworks
 import Reactive.Banana.GI.Gtk
-import GI.Gtk
 
-import UI
 import Format
 import Hoogle
+import UI
 
 -- | Flipped '<$>'
 (<&>) :: Functor f => f a -> (a -> b) -> f b
@@ -35,7 +35,7 @@ bootstrap app = do
     gui <- hoogleGTK
     activate <- signalE0 app #activate
     reactimate $ activate $> do
-        set (window gui) [ #application := app ]
+        set (window gui) [#application := app]
         widgetShowAll (window gui)
     pure gui
 
@@ -76,9 +76,20 @@ network gui
             getCompose $ (!!) <$> Compose (Just <$> targets) <*>
             Compose selection
         selectedDisplay = displayTarget <$> selectedTarget
+    sink (typeLabel gui) [#label :== dtargetType <$> selectedDisplay]
+    sink (moduleLabel gui) [#label :== dtargetModule <$> selectedDisplay]
+    sink (packageLabel gui) [#label :== dtargetPackage <$> selectedDisplay]
+    sink (docsLabel gui) [#label :== dtargetDocs <$> selectedDisplay]
+    sink
+        (browserButton gui)
+        [ #uri :== pack . fromMaybe "https://hackage.haskell.org" .
+          fmap targetURL <$>
+          selectedTarget
+        ]
+    -- orientation
+    rotate <- signalE0 (rotateButton gui) #clicked
+    orientation <- accumB OrientationVertical (reorient <$ rotate)
+    sink (paned gui) [#orientation :== orientation]
 
-    sink (typeLabel gui) [ #label :== dtargetType <$> selectedDisplay ]
-    sink (moduleLabel gui) [ #label :== dtargetModule <$> selectedDisplay ]
-    sink (packageLabel gui) [ #label :== dtargetPackage <$> selectedDisplay ]
-    sink (docsLabel gui) [ #label :== dtargetDocs <$> selectedDisplay ]
-    sink (browserButton gui) [ #uri :== pack . fromMaybe "https://hackage.haskell.org" . fmap targetURL <$> selectedTarget ]
+reorient OrientationVertical = OrientationHorizontal
+reorient OrientationHorizontal = OrientationVertical

@@ -1,17 +1,17 @@
 {-# LANGUAGE PatternGuards #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Format (
-    targetRow,
-    DisplayTarget(..),
-    displayTarget,
-    tagged
-) where
+module Format
+    ( targetRow
+    , DisplayTarget(..)
+    , displayTarget
+    , tagged
+    ) where
 
+import Control.Monad.IO.Class
 import Data.Bifunctor
 import Data.Maybe
 import Data.Text (Text, pack, unpack)
-import Control.Monad.IO.Class
 import qualified Data.Text as T
 import Text.HTML.TagSoup
 
@@ -39,7 +39,8 @@ data DisplayTarget = DisplayTarget
 
 displayTarget :: Maybe Target -> DisplayTarget
 displayTarget Nothing = DisplayTarget "" "" "" ""
-displayTarget (Just t) = DisplayTarget
+displayTarget (Just t) =
+    DisplayTarget
     { dtargetType = formatType False $ targetItem t
     , dtargetModule = formatLink $ targetModule t
     , dtargetPackage = formatLink $ targetPackage t
@@ -55,10 +56,11 @@ tagged :: String -> [Text]
 tagged = map pack . mapMaybe (maybeTagText) . parseTags
 
 formatComp :: String -> Text
-formatComp x = case tagged x of
-    ["module", prefix, name] -> T.drop 1 prefix <> T.drop 3 name
-    ["package", " ", name] -> T.drop 3 name
-    _ -> pack x
+formatComp x =
+    case tagged x of
+        ["module", prefix, name] -> T.drop 1 prefix <> T.drop 3 name
+        ["package", " ", name] -> T.drop 3 name
+        _ -> pack x
 
 formatType :: Bool -> String -> Text
 formatType pretty x =
@@ -105,8 +107,7 @@ formatDocs = renderTags . mapMaybe go . parseTags . pack
     go (TagOpen t _) =
         case t of
             "pre" ->
-                Just $
-                TagOpen "span" [("face", "monospace"), ("size", "small")]
+                Just $ TagOpen "span" [("face", "monospace"), ("size", "small")]
             "tt" -> Just $ TagOpen "span" [("face", "monospace")]
             "a" -> Just $ TagOpen "i" []
             _ -> Nothing
