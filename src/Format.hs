@@ -76,11 +76,9 @@ formatItem pretty x =
             if pretty
                 then prettySig sig
                 else sig
-        [op, ")", sig] ->
-            escapeHTML ("(" <> T.drop 4 op <> ")") <>
-            if pretty
-                then prettySig sig
-                else sig
+        [op, ")", sig]
+            | pretty -> escapeHTML ("(" <> T.drop 4 op <> ")") <> prettySig sig
+            | otherwise -> "(" <> T.drop 4 op <> ")" <> sig
         "newtype":" ":name:args
             | pretty ->
                 prettySig $
